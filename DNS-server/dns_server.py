@@ -16,8 +16,8 @@ def get_flags(flag_bytes):
     # BYTE 1
     QR = "1" 
     OPCODE = ""
-    for bit_shift in range(6, 3, -1):
-        OPCODE += "1" if ord(byte1) & (1 << bit_shift) else "0"
+    for bit_shift in range(6, 2, -1):
+        OPCODE += "1" if ord(byte1) & (1 << bit_shift) else "0" # compares the int ascii value of byte1 to bits 7,6,5 and 4
     AA = "0"
     TC = "0"
     RD = "1" if ord(byte1) & 1 else "0"
@@ -30,14 +30,40 @@ def get_flags(flag_bytes):
     CD = "0"
     RCODE = "0000"
     r_byte2 = int(RA + Z + AD + CD + RCODE, 2).to_bytes(1, 'big')
-    print(r_byte1 + r_byte2)
+
     return r_byte1 + r_byte2
+
+def get_answer_count(answer_bytes):
+    domain_part = ""
+    domain_parts = []
+    bytes_to_go = 0
+    getting_part_value = False
+    question_type = ""
+    for i, byte in enumerate(answer_bytes):
+
+        if getting_part_value:
+            bytes_to_go -= 1
+            domain_part += chr(byte)
+        else:
+            bytes_to_go = int(byte) 
+            if bytes_to_go < 1:
+                question_type = answer_bytes[i+1:i+3] # next two bytes
+                break
+            getting_part_value = True
+
+        if not bytes_to_go:
+            domain_parts.append(domain_part)
+            domain_part = ""
+            getting_part_value = False
+
+    print(domain_parts)
+    print(question_type)
 
 def build_response(query):
     transaction_id = get_transaction_id(query[:2])
     flags = get_flags(query[2:4])
-    # # flags
-    # response_code = format(0, '04b') # 0 = no error
+    question_count = b"\x00\x01"
+    answer_count = get_answer_count(query[12:])
     return
 
 # creates a socket that uses UDP
