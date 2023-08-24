@@ -33,7 +33,7 @@ def get_flags(flag_bytes):
 
     return r_byte1 + r_byte2
 
-def get_answer_count(answer_bytes):
+def get_domain_and_qtype(answer_bytes):
     domain_part = ""
     domain_parts = []
     bytes_to_go = 0
@@ -55,15 +55,19 @@ def get_answer_count(answer_bytes):
             domain_parts.append(domain_part)
             domain_part = ""
             getting_part_value = False
-
-    print(domain_parts)
-    print(question_type)
+    
+    return domain_parts, question_type
 
 def build_response(query):
     transaction_id = get_transaction_id(query[:2])
     flags = get_flags(query[2:4])
     question_count = b"\x00\x01"
-    answer_count = get_answer_count(query[12:])
+    domain_labels, qtype_bytes = get_domain_and_qtype(query[12:])
+    question_type = ""
+
+    if qtype_bytes == b"\x00\x01":
+        question_type = "A"
+
     return
 
 # creates a socket that uses UDP
