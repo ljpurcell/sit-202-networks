@@ -1,31 +1,32 @@
 from socket import socket, AF_INET, SOCK_DGRAM
-from secrets import randbits
 
-HOST = "127.0.0.1" # server's IP address
-PORT = 8080 # port being used by the server -- make standard DNS port?
+HOST = "127.0.0.1" 
+PORT = 8080  
 QUIT_COMMAND = ":q!"
 
-def build_query(url):
-    transaction_id = format(randbits(16), '016b')
-    # flags
-    qr = 0
-    op_code = format(0, '04b')
-    recursion_desired = 0
-
-# creates a socket that uses UDP 
 with socket(AF_INET, SOCK_DGRAM) as s:
-    s.connect((HOST, PORT)) # connects to the servers socket
+    s.connect((HOST, PORT))  
 
-    more_queries = True
+    print("\n\tWelcome to this DNS service\n")
+    print(
+        "Please type in the domain you wish to query. The server will return both A and CNAME record information unless you specify only one."
+    )
+    print("EXAMPLE: 'www.google.com --only=A'--> returns only A record information.")
+    print("EXAMPLE: 'www.google.com --only=CNAME'--> returns only CNAME record information.")
+    print(f"(Or type '{QUIT_COMMAND}' to quit)")
 
-    while more_queries:
-        hostname = input("Hostname or alias: ")
+    while True:
+        query = input("\nDomain: ").strip()
+        if query == QUIT_COMMAND:
+            break
 
-        query_message = b""
+        s.send(query.encode('utf-8'))
 
-        s.send(query_message)
-        response_message = s.recv(1024)
-        print(f"Received {response_message}")
+        response = s.recv(1024).decode()
+        print(response)
 
-        answer = input(f"Type '{QUIT_COMMAND}' to quit")
-        more_queries = answer == QUIT_COMMAND
+        user_input = input(f"Type '{QUIT_COMMAND}' to quit or press ENTER to continue.").strip()
+        if user_input == QUIT_COMMAND:
+            break
+
+    print("Goodbye!")
