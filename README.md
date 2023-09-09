@@ -1,8 +1,9 @@
 # sit-202-computer-networks-and-communication
 
-Submissions for computer networking subject, written in Python.
+Submissions for computer networking subject, written in Python and Go.
 
-
-## DNS server
-- DNS server maps host names (and their aliases) to IP addresses
-- Utilizes the UDP transport layer protocol
+## Projects
+1. DNS server
+2. HTTP client & server
+3. Web socket server
+4. IP address tester
